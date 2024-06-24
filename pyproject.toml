@@ -38,7 +38,8 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
   "Topic :: Scientific/Engineering",
 ]
-dependencies = ["ollama","ipykernel"]
+dependencies = ["ollama",
+                "ipykernel"]
 
 [project.optional-dependencies]
 dev = [

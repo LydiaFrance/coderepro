@@ -33,4 +33,5 @@ while contents:
         #print(file_content)
         dirfiles.append(file_content)
 
-print(talk_to_llama(dirfiles, "Is this a good github directory structure for a python package?    Can you give tips on how to improve it?"))
+prompt = "I want to create a python package from my github repo. The file structure is given. I need detailed advice on what files are missing or to include to make this good software."
+print(talk_to_llama(dirfiles, prompt))

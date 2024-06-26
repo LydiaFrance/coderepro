@@ -24,15 +24,17 @@ git clone --depth 1 --no-checkout --filter=blob:none $REPO_URL
 
 # Get the folder name of the repo
 REPO_FOLDER=$(basename -s .git $REPO_URL)
-cd $REPO_FOLDER
-echo $(pwd)
+REPO_PATH=${CODEREPRO_PATH}/temp_repo/${REPO_FOLDER}
+echo $REPO_PATH
+
+cd $REPO_PATH
 
 # Initialise sparse-checkout
 git sparse-checkout init
 
-# # Replace .git/info/sparse-checkout with contents of sparse_file_exclude.txt
-cat ${BASH_PATH}/sparse_file_exclude.txt > .git/info/sparse-checkout
+# # # Replace .git/info/sparse-checkout with contents of sparse_file_exclude.txt
+cat ${BASH_PATH}/sparse_file_exclude.txt > ${REPO_PATH}/.git/info/sparse-checkout
 
-# Now pull from github
+# # Now pull from github
 git checkout
  

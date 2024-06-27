@@ -1,7 +1,7 @@
 import os
 import re
-from pathlib import Path
 from datetime import datetime
+import json
 #from tkinter import Tk, Label, Button, Entry, StringVar, filedialog, messagebox, Radiobutton, IntVar
 
 class LocalRepoScraper:
@@ -70,29 +70,151 @@ class LocalRepoScraper:
 
         print("Done.")
         return filename
+
+def find_repo_path(current_path, temp_repo_dir="temp_repo"):
+
+    # Find the path of the target repository
+    target_repo_path = current_path + "/" + temp_repo_dir
+
+    # Next find the target repo name.
+    # - list the folders in the directory. 
+    # - To make sure it only gets the first folder, it will break after the first folder is found
+    directory_list = os.listdir(target_repo_path)
+    for dir_name in directory_list:
+        if dir_name.startswith("output") or dir_name.startswith("."):
+            continue
+        target_repo_name = dir_name
+        break
+
+    # Combine the path and the name
+    target_repo_path = target_repo_path + "/" + target_repo_name
+
+    return target_repo_path
+
+def find_script_path():
+    # find the path of this script
+    script_path = os.path.realpath(__file__)
+
+    # Find the directory of the script
+    script_path = os.path.dirname(script_path)
+
+    # Go up one directory
+    root_path = os.path.dirname(script_path)
+
+    return script_path, root_path
+
+def find_files(directory, file_extension=".py"):
+    python_files = []
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            if file.endswith(file_extension):
+                python_files.append(os.path.join(root, file))
+    return python_files
+
+
+def find_files_with_keyword(directory, keyword):
+    matched_files = []
+
+    # If keyword is a list, loop through the list
+    if isinstance(keyword, list):
+        for key in keyword:
+            for root, dirs, files in os.walk(directory):
+                for file in files:
+                    if key.lower() in file.lower():
+                        matched_files.append(os.path.join(root, file))
+        return matched_files
+    elif isinstance(keyword, str):
+        for root, dirs, files in os.walk(directory):
+            for file in files:
+                if keyword.lower() in file.lower():
+                    matched_files.append(os.path.join(root, file))
+        return matched_files
+
+def feedback_message(topic, message, output_path):
+    """
+    Add to a feedback .json file
+    """
+    feedback_path = os.path.join(output_path, "feedback.json")
+
+    # Check if the file exists and load existing data
+    if os.path.exists(feedback_path):
+        with open(feedback_path, "r") as f:
+            feedback_data = json.load(f)
+    else:
+        feedback_data = {}
+
+    # Add the new feedback
+    feedback_data[topic] = message
+
+    # Write the updated feedback data back to the file
+    with open(feedback_path, "w") as f:
+        json.dump(feedback_data, f, indent=4)
+
+
     
 # Define the paths to the local repositories
-
 # find the path of this script
-script_path = os.path.realpath(__file__)
+script_path, root_path = find_script_path()
 
-# Find the directory of the script
-script_path = os.path.dirname(script_path)
-script_path = os.path.dirname(script_path) # Go up one directory
+# Use the root of this path to find the temp_repo folder
+target_repo_path = find_repo_path(root_path)
 
-target_repo_path = script_path + "/temp_repo"
+# Find the path of the output folder
+output_path = os.path.dirname(target_repo_path) + "/output"
+
+# Make the folder if it doesn't exist
+if not os.path.exists(output_path):
+    os.makedirs(output_path)
+
+
+# Search for License
+license_files = find_files_with_keyword(target_repo_path, "license")
+if len(license_files) == 0:
+    feedback_message("missing_license", "No license file found. Without a license, others may not legally use, copy, modify, or distribute your code. Without a license, this creates legal uncertainty, reduces collaboration, and limits use.", output_path)
+
+# Search for README
+readme_file = find_files_with_keyword(target_repo_path, "readme")
+if len(readme_file) == 0:
+    feedback_message("missing_readme", "No readme file found. Without a readme, users won't know how to use or read your software.", output_path)
+
+
+# Search for requirements
+requirements_file = find_files_with_keyword(target_repo_path, [".toml","requirements.txt", "setup.py", ])
+if len(requirements_file) == 0:
+    feedback_message("missing_requirements", "Your repository is missing a requirements.txt, .toml, or setup.py file. Without these files, users and contributors cannot easily install dependencies or understand the project’s configuration, leading to difficulties in setting up and running the project.", output_path)
+
+
+# Search for BLAH
+# readme_file = find_files_with_keyword(target_repo_path, "blah")
+# if len(readme_file) == 0:
+#     feedback_message("missing_readme", "No blah file found.", output_path)
 
 
 
-print(f"Here: {target_repo_path}")
+# Search for python files and make a list of their paths
+python_files = find_files(target_repo_path, ".py")
+for file in python_files:
+    print(file)
 
-# list the files in the directory
-directory_list = os.listdir(target_repo_path)
-for dir_name in directory_list:
-    if dir_name.startswith("output") or dir_name.startswith("."):
-        continue
-    target_repo_name = dir_name
-    break
+# Search for markdown files and make a list of their paths
+md_files = find_files(target_repo_path, ".md")
+for file in md_files:
+    print(file)
+
+
+
+# # Run the scraper
+# all_repo_paths = Path(target_repo_path).glob("**/*")
+
+# for path in all_repo_paths:
+#     print(path)
+# print(f"All repo paths: {all_repo_paths}")
+
+# for root, d_names, f_names in os.walk(target_repo_path):
+#     print(f"Root: {root}")
+#     print(f"Dirs: {d_names}")
+#     print(f"Files: {f_names}")
+#     break
 
 
 

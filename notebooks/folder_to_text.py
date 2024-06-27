@@ -72,15 +72,39 @@ class LocalRepoScraper:
         return filename
     
 # Define the paths to the local repositories
-repo_paths = Path("/Users/user/Documents/CodeRepro/coderepro/temp_repo/PyBaMM").glob("**/*")
-repo_paths = [str(repo_path) for repo_path in repo_paths]
-output_path = "/Users/user/Documents/CodeRepro/coderepro/temp_repo/output"
-output_filename = "output"
-selected_file_types = [".py",".md",".yaml"]
-filter_files = True
 
-    # Create an instance of LocalRepoScraper
-scraper = LocalRepoScraper(repo_paths, output_path, output_filename, selected_file_types, filter_files)
+# find the path of this script
+script_path = os.path.realpath(__file__)
 
-    # Run the scraper
-scraper.run()
+# Find the directory of the script
+script_path = os.path.dirname(script_path)
+script_path = os.path.dirname(script_path) # Go up one directory
+
+target_repo_path = script_path + "/temp_repo"
+
+
+
+print(f"Here: {target_repo_path}")
+
+# list the files in the directory
+directory_list = os.listdir(target_repo_path)
+for dir_name in directory_list:
+    if dir_name.startswith("output") or dir_name.startswith("."):
+        continue
+    target_repo_name = dir_name
+    break
+
+
+
+# repo_paths = Path("/Users/user/Documents/CodeRepro/coderepro/temp_repo/PyBaMM").glob("**/*")
+# repo_paths = [str(repo_path) for repo_path in repo_paths]
+# output_path = "/Users/user/Documents/CodeRepro/coderepro/temp_repo/output"
+# output_filename = "output"
+# selected_file_types = [".py",".md",".yaml"]
+# filter_files = True
+
+#     # Create an instance of LocalRepoScraper
+# scraper = LocalRepoScraper(repo_paths, output_path, output_filename, selected_file_types, filter_files)
+
+#     # Run the scraper
+# scraper.run()

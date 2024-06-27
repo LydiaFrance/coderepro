@@ -3,6 +3,11 @@ from torch import nn
 from torch.utils.data import Dataset, DataLoader
 from transformers import AutoModel, AutoTokenizer
 
+# TODO: find a better way to host the model
+# if you run this for the first time, make sure you get the model first
+# mkdir data
+# wget https://cernbox.cern.ch/remote.php/dav/public-files/QV47M3dk0eXGdbe/bert_classifier.pt
+
 path_to_model = "./data/bert_classifier.pt"
 dummy_text = ['The repository is a solid project with a strong foundation. It excels in documentation, code quality, and community engagement. However, addressing performance issues, adding more examples, updating dependencies, and improving the user interface would significantly enhance its usability and attractiveness. With these improvements, the project has the potential to become a go-to resource in its field.']
 # evaluate on cpu for now

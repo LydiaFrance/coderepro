@@ -57,6 +57,9 @@ Homepage = "https://github.com/LydiaFrance/coderepro"
 Discussions = "https://github.com/LydiaFrance/coderepro/discussions"
 Changelog = "https://github.com/LydiaFrance/coderepro/releases"
 
+[project.scripts]
+coderepro = "coderepro.main:main"
+
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = ["-ra", "--showlocals", "--strict-markers", "--strict-config"]

@@ -71,8 +71,8 @@ class LocalRepoScraper:
         return filename
     
 # Define the paths to the local repositories
-repo_paths = os.scandir("/Users/user/Documents/CodeRepro/coderepro/temp_repo/distinctipy")
-output_path = "/Users/user/Documents/CodeRepro/coderepro/temp_repo/output"
+repo_paths = os.scandir("/Users/danield/PycharmProjects/coderepro/coderepro")
+output_path = "/Users/danield/PycharmProjects/coderepro/coderepro/temp_repo/output"
 output_filename = "output"
 selected_file_types = [".yaml"]
 filter_files = False

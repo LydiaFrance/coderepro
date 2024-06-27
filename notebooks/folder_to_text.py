@@ -1,7 +1,7 @@
 import os
 import re
 from datetime import datetime
-from tkinter import Tk, Label, Button, Entry, StringVar, filedialog, messagebox, Radiobutton, IntVar
+#from tkinter import Tk, Label, Button, Entry, StringVar, filedialog, messagebox, Radiobutton, IntVar
 
 class LocalRepoScraper:
     def __init__(self, repo_paths, output_path, output_filename, selected_file_types=[], filter_files=True):
@@ -17,6 +17,7 @@ class LocalRepoScraper:
             # Check if file type is in selected file types
             if not self.filter_files or any(file_path.endswith(file_type) for file_type in self.selected_file_types):
                 relative_path = os.path.basename(file_path)
+                print(relative_path)
                 file_content = ""
                 file_content += f"\n'''--- {relative_path} ---\n"
                 try:
@@ -68,82 +69,16 @@ class LocalRepoScraper:
 
         print("Done.")
         return filename
+    
+# Define the paths to the local repositories
+repo_paths = os.scandir("/Users/user/Documents/CodeRepro/coderepro/temp_repo/distinctipy")
+output_path = "/Users/user/Documents/CodeRepro/coderepro/temp_repo/output"
+output_filename = "output"
+selected_file_types = [".yaml"]
+filter_files = False
 
-class FolderToTextGUI:
-    def __init__(self, master):
-        self.master = master
-        master.title("Folder to Text")
+    # Create an instance of LocalRepoScraper
+scraper = LocalRepoScraper(repo_paths, output_path, output_filename, selected_file_types, filter_files)
 
-        self.repo_path_label = Label(master, text="Local Files:")
-        self.repo_path_entry = Button(master, text="Browse...", command=self.browse_repo_path)
-
-        self.file_types_label = Label(master, text="File Types (comma separated):")
-        self.file_types_entry = Entry(master)
-
-        self.output_path_label = Label(master, text="Output Path:")
-        self.output_path_entry = Button(master, text="Browse...", command=self.browse_output_path)
-
-        self.output_filename_label = Label(master, text="Output Filename:")
-        self.output_filename_entry = Entry(master)
-
-        self.filter_files = IntVar()
-        self.filter_files.set(1)  # Set filtering to be on by default
-        self.filter_files_label = Label(master, text="Filter Files:")
-        self.filter_files_on = Radiobutton(master, text="On", variable=self.filter_files, value=1)
-        self.filter_files_off = Radiobutton(master, text="Off", variable=self.filter_files, value=0)
-
-        self.run_button = Button(master, text="Run", command=self.run)
-
-        self.repo_path_label.grid(row=0, column=0, sticky="E")
-        self.repo_path_entry.grid(row=0, column=1)
-
-        self.file_types_label.grid(row=1, column=0, sticky="E")
-        self.file_types_entry.grid(row=1, column=1)
-
-        self.output_path_label.grid(row=2, column=0, sticky="E")
-        self.output_path_entry.grid(row=2, column=1)
-
-        self.output_filename_label.grid(row=3, column=0, sticky="E")
-        self.output_filename_entry.grid(row=3, column=1)
-
-        self.filter_files_label.grid(row=4, column=0, sticky="E")
-        self.filter_files_on.grid(row=4, column=1, sticky="W")
-        self.filter_files_off.grid(row=4, column=1)
-
-        self.run_button.grid(row=5, column=1)
-
-        self.repo_paths = ()
-        self.output_path = ""
-
-    def browse_repo_path(self):
-        new_repo_paths = filedialog.askopenfilenames()
-        if not new_repo_paths:
-            return
-        self.repo_paths += new_repo_paths  # Add new selected files to existing ones
-        self.repo_path_label.config(text=f"Selected Files: {len(self.repo_paths)}")
-
-    def browse_output_path(self):
-        self.output_path = filedialog.askdirectory()
-        if not self.output_path:
-            return
-        self.output_path_label.config(text=f"Output Path: {self.output_path}")
-
-    def run(self):
-        selected_file_types = [ftype.strip() for ftype in self.file_types_entry.get().split(',')]
-        output_filename = self.output_filename_entry.get()
-        if not output_filename:
-            messagebox.showerror("Error", "Please enter an output filename.")
-            return
-        if not self.repo_paths:
-            messagebox.showerror("Error", "Please select files.")
-            return
-        if not self.output_path:
-            messagebox.showerror("Error", "Please select an output path.")
-            return
-        scraper = LocalRepoScraper(self.repo_paths, self.output_path, output_filename, selected_file_types, bool(self.filter_files.get()))
-        scraper.run()
-
-if __name__ == "__main__":
-    root = Tk()
-    gui = FolderToTextGUI(root)
-    root.mainloop()
+    # Run the scraper
+scraper.run()

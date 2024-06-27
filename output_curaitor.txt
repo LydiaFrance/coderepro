@@ -1,0 +1,476 @@
+*Local Files*
+
+'''--- code_of_conduct.md ---
+
+# Contributor Covenant Code of Conduct
+
+## Our Pledge
+
+We as members, contributors, and leaders pledge to make participation in our
+community a harassment-free experience for everyone, regardless of age, body
+size, visible or invisible disability, ethnicity, sex characteristics, gender
+identity and expression, level of experience, education, socio-economic status,
+nationality, personal appearance, race, caste, color, religion, or sexual
+identity and orientation.
+
+We pledge to act and interact in ways that contribute to an open, welcoming,
+diverse, inclusive, and healthy community.
+
+## Our Standards
+
+Examples of behavior that contributes to a positive environment for our
+community include:
+
+* Demonstrating empathy and kindness toward other people
+* Being respectful of differing opinions, viewpoints, and experiences
+* Giving and gracefully accepting constructive feedback
+* Accepting responsibility and apologizing to those affected by our mistakes,
+  and learning from the experience
+* Focusing on what is best not just for us as individuals, but for the overall
+  community
+
+Examples of unacceptable behavior include:
+
+* The use of sexualized language or imagery, and sexual attention or advances of
+  any kind
+* Trolling, insulting or derogatory comments, and personal or political attacks
+* Public or private harassment
+* Publishing others' private information, such as a physical or email address,
+  without their explicit permission
+* Other conduct which could reasonably be considered inappropriate in a
+  professional setting
+
+## Enforcement Responsibilities
+
+Community leaders are responsible for clarifying and enforcing our standards of
+acceptable behavior and will take appropriate and fair corrective action in
+response to any behavior that they deem inappropriate, threatening, offensive,
+or harmful.
+
+Community leaders have the right and responsibility to remove, edit, or reject
+comments, commits, code, wiki edits, issues, and other contributions that are
+not aligned to this Code of Conduct, and will communicate reasons for moderation
+decisions when appropriate.
+
+## Scope
+
+This Code of Conduct applies within all community spaces, and also applies when
+an individual is officially representing the community in public spaces.
+Examples of representing our community include using an official email address,
+posting via an official social media account, or acting as an appointed
+representative at an online or offline event.
+
+## Enforcement
+
+Instances of abusive, harassing, or otherwise unacceptable behavior may be
+reported to the community leaders responsible for enforcement at
+morenoma@umich.edu.
+All complaints will be reviewed and investigated promptly and fairly.
+
+All community leaders are obligated to respect the privacy and security of the
+reporter of any incident.
+
+## Enforcement Guidelines
+
+Community leaders will follow these Community Impact Guidelines in determining
+the consequences for any action they deem in violation of this Code of Conduct:
+
+### 1. Correction
+
+**Community Impact**: Use of inappropriate language or other behavior deemed
+unprofessional or unwelcome in the community.
+
+**Consequence**: A private, written warning from community leaders, providing
+clarity around the nature of the violation and an explanation of why the
+behavior was inappropriate. A public apology may be requested.
+
+### 2. Warning
+
+**Community Impact**: A violation through a single incident or series of
+actions.
+
+**Consequence**: A warning with consequences for continued behavior. No
+interaction with the people involved, including unsolicited interaction with
+those enforcing the Code of Conduct, for a specified period of time. This
+includes avoiding interactions in community spaces as well as external channels
+like social media. Violating these terms may lead to a temporary or permanent
+ban.
+
+### 3. Temporary Ban
+
+**Community Impact**: A serious violation of community standards, including
+sustained inappropriate behavior.
+
+**Consequence**: A temporary ban from any sort of interaction or public
+communication with the community for a specified period of time. No public or
+private interaction with the people involved, including unsolicited interaction
+with those enforcing the Code of Conduct, is allowed during this period.
+Violating these terms may lead to a permanent ban.
+
+### 4. Permanent Ban
+
+**Community Impact**: Demonstrating a pattern of violation of community
+standards, including sustained inappropriate behavior, harassment of an
+individual, or aggression toward or disparagement of classes of individuals.
+
+**Consequence**: A permanent ban from any sort of public interaction within the
+community.
+
+## Attribution
+
+This Code of Conduct is adapted from the [Contributor Covenant][homepage],
+version 2.1, available at
+[https://www.contributor-covenant.org/version/2/1/code_of_conduct.html][v2.1].
+
+Community Impact Guidelines were inspired by
+[Mozilla's code of conduct enforcement ladder][Mozilla CoC].
+
+For answers to common questions about this code of conduct, see the FAQ at
+[https://www.contributor-covenant.org/faq][FAQ]. Translations are available at
+[https://www.contributor-covenant.org/translations][translations].
+
+[homepage]: https://www.contributor-covenant.org
+[v2.1]: https://www.contributor-covenant.org/version/2/1/code_of_conduct.html
+[Mozilla CoC]: https://github.com/mozilla/diversity
+[FAQ]: https://www.contributor-covenant.org/faq
+[translations]: https://www.contributor-covenant.org/translations
+
+'''
+'''--- requirements-dev.in ---
+# instrumentation
+black[jupyter]==23.*
+isort
+jupyter
+matplotlib
+pytest
+pytest-xdist
+seaborn
+sphinx_rtd_theme
+teeplot
+watermark
+ruff
+
+# dependencies
+numpy<2
+openai
+pandas
+pdfminer
+pypdf
+tabula
+tiktoken
+tqdm
+osfclient
+pyyaml
+
+'''
+'''--- pyproject.toml ---
+[tool.black]
+line_length = 79
+# due to some weird circular symlink issue
+extend_exclude = "requirements-dev"
+
+[tool.isort]
+force_sort_within_sections = true
+line_length = 79
+profile = "black"
+skip_gitignore = true
+
+'''
+'''--- .bumpversion.cfg ---
+[bumpversion]
+current_version = 0.1.0
+commit = True
+tag = True
+
+[bumpversion:file:CITATION.cff]
+search = version: {current_version}
+replace = version: {new_version}
+
+[bumpversion:file:cpp/package.json]
+search = "version": "{current_version}"
+replace = "version": "{new_version}"
+
+[bumpversion:file:docs/conf.py]
+search = version = '{current_version}'
+replace = version = '{new_version}'
+
+'''
+'''--- lint.sh ---
+#!/bin/bash
+
+ruff --ignore=E501 .
+
+'''
+'''--- .gitmodules ---
+
+'''
+'''--- prompts.yml ---
+pv: |
+    You will be provided with excerpts from research papers relating to photovoltaics. Your primary objective is to accurately extract data from the excerpt.
+    Each dataset must include the following parameters: Absorber Layer, Power Conversion Efficiency (PCE), Open-circuit Voltage (Voc), Short-circuit Current (Jsc), and Fill Factor (FF).
+
+    Read the provided excerpt from a research paper and extract the relevant and correct values in the following JSON format:
+    Format:
+
+            "Absorber Layer": "<Chemical Composition or Material Name>",
+            "PCE": "<Value in %> %",
+            "Voc": "<Value in V> V",
+            "Isc": "<Value in mA/cm2> mA/cm2",
+            "FF": "<Value in %> %"
+
+    For missing values, enter "N/A".
+    The output should only contain JSON objects separated by a newline character.
+
+    Follow the given format STRICTLY.
+    Fill in complete sets only and omit incomplete data
+    Do not include incomplete sets of data.
+    
+    Paper exerpt: ```{paper_exerpt}```
+
+bio: |
+    Using the context provided below, elaborate on the roles played by different cell types as if you were creating rules for an agent-based model, and factors in muscle repair and regeneration. Structure your response in a table with three columns:
+    1) Embedding numbers, 
+    2) Source text name, 
+    and 3) Detailed roles and interactions of cell types like satellite cells, fibroblasts, macrophages, neutrophils, cytokines, and growth factors. Provide multiple entries. 
+
+    For each cell type or cytokine or growth factor mentioned, focusing on their specific effects during the cell cycle phases and their interactions during the process of muscle repair.\n\n"
+    f"Context: {relevant_text}"
+  
+
+'''
+'''--- README.md ---
+
+# LLMs for Data Extraction
+
+[![GitHub Actions Status](https://github.com/mmore500/curaitor/actions/workflows/ci.yaml/badge.svg)](https://github.com/mmore500/curaitor/actions/workflows/ci/)
+[![GitHub stars](https://img.shields.io/github/stars/mmore500/curaitor.svg?style=flat-square&logo=github&label=Stars&logoColor=white)](https://github.com/mmore500/curaitor)
+
+Schmidt OxRSE 2024 Project
+
+-   Free software: MIT license
+
+## Set Up Development Environment
+
+```bash
+git clone https://github.com/mmore500/curaitor.git
+python3 -m venv env
+source env/bin/activate
+python3 -m pip install -r curaitor/requirements-dev.txt
+```
+
+## Contribution Guidelines
+
+1. Open pull request.
+2. Ensure tests, styling, and linting pass locally.
+   ```bash
+   ./test.sh
+   ./style.sh
+   ./lint.sh
+   ``` 
+3. Ensure tests, styling, and linting pass in CI.
+4. Request code review.
+5. Merge.
+
+## Credits
+
+This package was created with [Cookiecutter](https://github.com/audreyr/cookiecutter).
+
+'''
+'''--- validate.py ---
+#!/bin/env python
+
+import pathlib
+
+import curaitor
+
+if __name__ == "__main__":
+    print("loaded", curaitor)
+
+    print("TODO download source PDFs")
+
+    prompt = "My LLM prompt here."
+
+    print(f"TODO call pipeline with {prompt=}")
+
+    print("TODO load expected output")
+
+    print("TODO calculate and log performance")
+
+    print("TODO save data output")
+    pathlib.Path("output.txt").touch()
+
+'''
+'''--- .gitignore ---
+*~
+*.debug
+*.dSYM
+*.gcov
+*.js.mem
+*.map
+*.mp4
+*.o
+*.out
+*.pyc
+*.swp
+*.swo
+*.wasm
+*.wast
+*-bak.cpp
+*tmp.*
+
+.DS_Store
+a.out
+a.out.js
+web/llms-for-data-extraction.js
+
+build/
+doc/_build/
+
+package-lock.json
+node_modules/
+.ipynb_checkpoints/
+coverage_include/
+
+output.txt
+
+script/osfstorage
+
+'''
+'''--- style.sh ---
+#!/bin/bash
+set -e
+
+SOURCE_HASH=$( find -path ./cpp/third-party -prune -false -o -type f | sort | xargs cat | sha1sum )
+
+isort .
+black **/*.py **/*.ipynb
+
+if [ "${SOURCE_HASH}" == "$( find -path ./cpp/third-party -prune -false -o -type f | sort | xargs cat | sha1sum )" ];
+then
+  exit 0 # success
+else
+  echo "black violations detected, run black locally to find & fix"
+  exit 1 # failure
+fi
+
+'''
+'''--- curaitor_linux_env.yml ---
+name: curaitor
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - _libgcc_mutex=0.1=conda_forge
+  - _openmp_mutex=4.5=2_gnu
+  - annotated-types=0.7.0=pyhd8ed1ab_0
+  - anyio=4.4.0=pyhd8ed1ab_0
+  - asttokens=2.0.5=pyhd3eb1b0_0
+  - blas=1.0=mkl
+  - bottleneck=1.3.7=py311hf4808d0_0
+  - brotli-python=1.1.0=py311hb755f60_1
+  - bzip2=1.0.8=h5eee18b_6
+  - ca-certificates=2024.6.2=hbcca054_0
+  - certifi=2024.6.2=pyhd8ed1ab_0
+  - charset-normalizer=3.3.2=pyhd8ed1ab_0
+  - comm=0.2.1=py311h06a4308_0
+  - debugpy=1.6.7=py311h6a678d5_0
+  - decorator=5.1.1=pyhd3eb1b0_0
+  - distro=1.9.0=pyhd8ed1ab_0
+  - exceptiongroup=1.2.0=pyhd8ed1ab_2
+  - executing=0.8.3=pyhd3eb1b0_0
+  - gmp=6.2.1=h58526e2_0
+  - h11=0.14.0=pyhd8ed1ab_0
+  - h2=4.1.0=pyhd8ed1ab_0
+  - hpack=4.0.0=pyh9f0ad1d_0
+  - httpcore=1.0.5=pyhd8ed1ab_0
+  - httpx=0.27.0=pyhd8ed1ab_0
+  - hyperframe=6.0.1=pyhd8ed1ab_0
+  - idna=3.7=pyhd8ed1ab_0
+  - intel-openmp=2023.1.0=hdb19cb5_46306
+  - ipykernel=6.28.0=py311h06a4308_0
+  - ipython=8.25.0=py311h06a4308_0
+  - jedi=0.18.1=py311h06a4308_1
+  - jupyter_client=8.6.0=py311h06a4308_0
+  - jupyter_core=5.7.2=py311h06a4308_0
+  - ld_impl_linux-64=2.38=h1181459_1
+  - libffi=3.4.4=h6a678d5_1
+  - libgcc-ng=13.2.0=h77fa898_11
+  - libgomp=13.2.0=h77fa898_11
+  - libsodium=1.0.18=h7b6447c_0
+  - libstdcxx-ng=13.2.0=hc0a3c3a_11
+  - libuuid=1.41.5=h5eee18b_0
+  - matplotlib-inline=0.1.6=py311h06a4308_0
+  - mkl=2023.1.0=h213fc3f_46344
+  - mkl-service=2.4.0=py311h5eee18b_1
+  - mkl_fft=1.3.8=py311h5eee18b_0
+  - mkl_random=1.2.4=py311hdb19cb5_0
+  - ncurses=6.4=h6a678d5_0
+  - nest-asyncio=1.6.0=py311h06a4308_0
+  - numexpr=2.8.7=py311h65dcdc2_0
+  - numpy=1.26.4=py311h08b1b3b_0
+  - numpy-base=1.26.4=py311hf175353_0
+  - openai=1.35.1=pyhd8ed1ab_0
+  - openssl=3.3.1=h4ab18f5_0
+  - packaging=23.2=py311h06a4308_0
+  - pandas=2.2.2=py311ha02d727_0
+  - parso=0.8.3=pyhd3eb1b0_0
+  - pdfminer=20191125=pyhd8ed1ab_1
+  - pexpect=4.8.0=pyhd3eb1b0_3
+  - pip=24.0=py311h06a4308_0
+  - platformdirs=3.10.0=py311h06a4308_0
+  - prompt-toolkit=3.0.43=py311h06a4308_0
+  - prompt_toolkit=3.0.43=hd3eb1b0_0
+  - psutil=5.9.0=py311h5eee18b_0
+  - ptyprocess=0.7.0=pyhd3eb1b0_2
+  - pure_eval=0.2.2=pyhd3eb1b0_0
+  - pycryptodome=3.19.0=py311h6601440_1
+  - pydantic=2.7.4=pyhd8ed1ab_0
+  - pydantic-core=2.18.4=py311h5ecf98a_0
+  - pygments=2.15.1=py311h06a4308_1
+  - pypdf=4.2.0=py311h06a4308_0
+  - pysocks=1.7.1=pyha2e5f31_6
+  - python=3.11.9=h955ad1f_0
+  - python-dateutil=2.9.0post0=py311h06a4308_2
+  - python-tzdata=2023.3=pyhd3eb1b0_0
+  - python_abi=3.11=2_cp311
+  - pytz=2024.1=py311h06a4308_0
+  - pyzmq=25.1.2=py311h6a678d5_0
+  - readline=8.2=h5eee18b_0
+  - regex=2024.5.15=py311h331c9d8_0
+  - requests=2.32.3=pyhd8ed1ab_0
+  - setuptools=69.5.1=py311h06a4308_0
+  - six=1.16.0=pyhd3eb1b0_1
+  - sniffio=1.3.1=pyhd8ed1ab_0
+  - sqlite=3.45.3=h5eee18b_0
+  - stack_data=0.2.0=pyhd3eb1b0_0
+  - tbb=2021.8.0=hdb19cb5_0
+  - tiktoken=0.7.0=py311h339c092_0
+  - tk=8.6.14=h39e8969_0
+  - tornado=6.4.1=py311h5eee18b_0
+  - tqdm=4.66.4=py311h92b7b1e_0
+  - traitlets=5.14.3=py311h06a4308_0
+  - typing-extensions=4.11.0=py311h06a4308_0
+  - typing_extensions=4.11.0=py311h06a4308_0
+  - tzdata=2024a=h04d1e81_0
+  - urllib3=2.2.2=pyhd8ed1ab_0
+  - wcwidth=0.2.5=pyhd3eb1b0_0
+  - wheel=0.43.0=py311h06a4308_0
+  - xz=5.4.6=h5eee18b_1
+  - zeromq=4.3.5=h6a678d5_0
+  - zlib=1.2.13=h5eee18b_1
+prefix: /home/nanta/miniconda3/envs/curaitor
+
+'''
+'''--- test.sh ---
+#!/bin/bash
+set -e
+
+python3 -m pytest test
+
+'''
+'''--- requirements-dev.sh ---
+#!/bin/bash
+
+python3.11 -m piptools compile requirements-dev.in --verbose
+
+'''

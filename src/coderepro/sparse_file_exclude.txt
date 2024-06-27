@@ -1,0 +1,16 @@
+* 
+/*
+/*/*
+/*/*/*
+!*.csv
+!*.jpg
+!*.png
+!*.txt
+!*.doc
+!*.docx
+!*.xls
+!*.xlsx
+!*.ppt
+!*.pptx
+!*.pdf
+/requirements.txt

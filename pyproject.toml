@@ -39,7 +39,10 @@ classifiers = [
   "Topic :: Scientific/Engineering",
 ]
 dependencies = ["ollama",
-                "ipykernel"]
+                "ipykernel", 
+                "jupyter", 
+                "nbconvert",
+                "notebook"]
 
 [project.optional-dependencies]
 dev = [

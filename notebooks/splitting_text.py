@@ -1,4 +1,3 @@
-import os
 from langchain_text_splitters import CharacterTextSplitter
 
 NCHAR=7000
@@ -9,6 +8,7 @@ def add_fname_to_content(file_path):
         content = file.read()
     # Append the name of the file to the start of the content
     relative_path = os.path.basename(file_path)
+    print(relative_path)
     file_content = ""
     file_content += f"\n'''--- {relative_path} ---\n"
     file_content += "\n'''"
@@ -26,33 +26,41 @@ def split_by_character(content, keyword):
     chunked_text = text_splitter.create_documents([content])
     return chunked_text[0].page_content
 
-file_path = '/Users/user/Documents/CodeRepro/coderepro/notebooks/folder_to_text.py'
+def chunk_markdown_scripts(mdcontent):
+    if len(mdcontent) > NCHAR:
+        # Split the content by class
+        mdcontent = split_by_character(mdcontent, keyword = '#')
+        if len(mdcontent) > NCHAR: 
+            mdcontent = split_by_character(mdcontent, keyword = '\n')
+    return mdcontent
 
-content_to_chunk = add_fname_to_content(file_path)
+def chunk_python_scripts(pycontent):
+    if len(pycontent) > NCHAR:
+        # Split the content
+        pycontent = split_by_character(pycontent, keyword = 'class ')
+        if len(pycontent) > NCHAR: 
+            pycontent = split_by_character(pycontent, keyword = 'def ')
+            if len(pycontent) > NCHAR:
+                pycontent = split_by_character(pycontent, keyword = '\n\n')
+    return pycontent
 
-#for .py files
-if len(content_to_chunk) > NCHAR:
-    # Split the content by class
-    content_to_chunk = split_by_character(content_to_chunk, keyword = 'class ')
-    if len(content_to_chunk) > NCHAR: 
-        content_to_chunk = split_by_character(content_to_chunk, keyword = 'def ')
-        if len(content_to_chunk) > NCHAR:
-            content_to_chunk = split_by_character(content_to_chunk, keyword = '\n\n')
+def chunk_notebooks(nbcontent):
+    if len(nbcontent) > NCHAR:
+        # Split the content 
+        nbcontent = split_by_character(nbcontent, keyword = '```')
+    return nbcontent
 
-print(content_to_chunk) 
+for file in converted_notebooks:
+    content_to_chunk = add_fname_to_content(file)
+    with open(output_fname, "w", encoding='utf-8') as f:
+        f.write(chunk_notebooks(content_to_chunk))
+ 
+for file in python_files:
+    content_to_chunk = add_fname_to_content(file)
+    with open(output_fname, "w", encoding='utf-8') as f:
+        f.write(chunk_python_scripts(content_to_chunk))
 
-#for md files
-if len(content_to_chunk) > NCHAR:
-    # Split the content by class
-    content_to_chunk = split_by_character(content_to_chunk, keyword = '#')
-    if len(content_to_chunk) > NCHAR: 
-        content_to_chunk = split_by_character(content_to_chunk, keyword = '\n')
-
-print(content_to_chunk) 
-
-#for notebook files
-if len(content_to_chunk) > NCHAR:
-    # Split the content by class
-    content_to_chunk = split_by_character(content_to_chunk, keyword = '`')
-
-print(content_to_chunk) 
+for file in md_files:
+    content_to_chunk = add_fname_to_content(file)
+    with open(output_fname, "w", encoding='utf-8') as f:
+        f.write(chunk_markdown_scripts(content_to_chunk))

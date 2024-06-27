@@ -30,6 +30,7 @@ file_path = '/Users/user/Documents/CodeRepro/coderepro/notebooks/folder_to_text.
 
 content_to_chunk = add_fname_to_content(file_path)
 
+#for .py files
 if len(content_to_chunk) > NCHAR:
     # Split the content by class
     content_to_chunk = split_by_character(content_to_chunk, keyword = 'class ')
@@ -37,5 +38,21 @@ if len(content_to_chunk) > NCHAR:
         content_to_chunk = split_by_character(content_to_chunk, keyword = 'def ')
         if len(content_to_chunk) > NCHAR:
             content_to_chunk = split_by_character(content_to_chunk, keyword = '\n\n')
+
+print(content_to_chunk) 
+
+#for md files
+if len(content_to_chunk) > NCHAR:
+    # Split the content by class
+    content_to_chunk = split_by_character(content_to_chunk, keyword = '#')
+    if len(content_to_chunk) > NCHAR: 
+        content_to_chunk = split_by_character(content_to_chunk, keyword = '\n')
+
+print(content_to_chunk) 
+
+#for notebook files
+if len(content_to_chunk) > NCHAR:
+    # Split the content by class
+    content_to_chunk = split_by_character(content_to_chunk, keyword = '`')
 
 print(content_to_chunk) 

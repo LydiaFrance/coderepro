@@ -1,3 +1,4 @@
+import os
 from langchain_text_splitters import CharacterTextSplitter
 
 NCHAR=7000
@@ -8,7 +9,6 @@ def add_fname_to_content(file_path):
         content = file.read()
     # Append the name of the file to the start of the content
     relative_path = os.path.basename(file_path)
-    print(relative_path)
     file_content = ""
     file_content += f"\n'''--- {relative_path} ---\n"
     file_content += "\n'''"
@@ -26,7 +26,7 @@ def split_by_character(content, keyword):
     chunked_text = text_splitter.create_documents([content])
     return chunked_text[0].page_content
 
-file_path = '/Users/user/Documents/CodeRepro/coderepro/temp_repo/PyBaMM/setup.py'
+file_path = '/Users/user/Documents/CodeRepro/coderepro/notebooks/folder_to_text.py'
 
 content_to_chunk = add_fname_to_content(file_path)
 
@@ -38,4 +38,4 @@ if len(content_to_chunk) > NCHAR:
         if len(content_to_chunk) > NCHAR:
             content_to_chunk = split_by_character(content_to_chunk, keyword = '\n\n')
 
-content_to_chunk 
+print(content_to_chunk) 

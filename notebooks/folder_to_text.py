@@ -1,5 +1,6 @@
 import os
 import re
+from pathlib import Path
 from datetime import datetime
 #from tkinter import Tk, Label, Button, Entry, StringVar, filedialog, messagebox, Radiobutton, IntVar
 
@@ -71,11 +72,12 @@ class LocalRepoScraper:
         return filename
     
 # Define the paths to the local repositories
-repo_paths = os.scandir("/Users/user/Documents/CodeRepro/coderepro/temp_repo/distinctipy")
+repo_paths = Path("/Users/user/Documents/CodeRepro/coderepro/temp_repo/PyBaMM").glob("**/*")
+repo_paths = [str(repo_path) for repo_path in repo_paths]
 output_path = "/Users/user/Documents/CodeRepro/coderepro/temp_repo/output"
 output_filename = "output"
-selected_file_types = [".yaml"]
-filter_files = False
+selected_file_types = [".py",".md",".yaml"]
+filter_files = True
 
     # Create an instance of LocalRepoScraper
 scraper = LocalRepoScraper(repo_paths, output_path, output_filename, selected_file_types, filter_files)

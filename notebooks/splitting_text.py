@@ -53,7 +53,7 @@ def chunk_python_scripts(pycontent):
     class_splits = pycontent.split('class ')
     # If any chunk is too long, split by def
     def_splits = []
-    for chunk in def_splits:
+    for chunk in class_splits:
         if len(chunk) > NCHAR:
             def_splits.extend(chunk.split('def '))
         else:
@@ -122,11 +122,19 @@ def chunk_notebooks(nbcontent):
 # Create a new folder inside the temp_repo to store chunked text
 path_to_temp = os.path.dirname(target_repo_path)
 text_outputs = os.path.join(path_to_temp, "output/chunked_text_for_llms")
-os.mkdir(text_outputs)
+
+# Make the folder if it doesn't exist
+if not os.path.exists(text_outputs):
+    os.makedirs(text_outputs)
+
 
 # For notebooks
 notebook_outputs = os.path.join(text_outputs, "notebooks")
-os.mkdir(notebook_outputs)
+
+# Make the folder if it doesn't exist
+if not os.path.exists(notebook_outputs):
+    os.makedirs(notebook_outputs)
+
 
 content_to_chunk = ""
 for file in converted_notebooks:
@@ -142,7 +150,10 @@ for index, text in enumerate(chunked_notebooks):
 
 # For markdown documentation
 md_outputs = os.path.join(text_outputs, "markdown")
-os.mkdir(md_outputs)
+
+# Make the folder if it doesn't exist
+if not os.path.exists(md_outputs):
+    os.makedirs(md_outputs)
 
 content_to_chunk = ""
 for file in md_files:
@@ -158,11 +169,15 @@ for index, text in enumerate(chunked_md):
 
 # For python scripts
 py_outputs = os.path.join(text_outputs, "python_scripts")
-os.mkdir(py_outputs)
+#os.mkdir(py_outputs)
+
+# Make the folder if it doesn't exist
+if not os.path.exists(py_outputs):
+    os.makedirs(py_outputs)
 
 content_to_chunk = ""
 for file in python_files:
-    content_to_chunk += add_fname_to_content(file)
+    content_to_chunk += add_fname_to_content(file) 
 
 chunked_py = chunk_python_scripts(content_to_chunk)
 
@@ -173,9 +188,12 @@ for index, text in enumerate(chunked_py):
         f.write(text)
 
 
-# For test files (python scripts)
+# # For test files (python scripts)
 test_outputs = os.path.join(text_outputs, "test_files")
-os.mkdir(test_outputs)
+
+# Make the folder if it doesn't exist
+if not os.path.exists(test_outputs):
+    os.makedirs(test_outputs)
 
 content_to_chunk = ""
 for file in test_files:

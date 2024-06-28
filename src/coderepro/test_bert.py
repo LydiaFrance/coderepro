@@ -8,11 +8,6 @@ from transformers import AutoModel, AutoTokenizer
 # mkdir data
 # wget https://cernbox.cern.ch/remote.php/dav/public-files/QV47M3dk0eXGdbe/bert_classifier.pt
 
-path_to_model = "./data/bert_classifier.pt"
-dummy_text = ['The repository is a solid project with a strong foundation. It excels in documentation, code quality, and community engagement. However, addressing performance issues, adding more examples, updating dependencies, and improving the user interface would significantly enhance its usability and attractiveness. With these improvements, the project has the potential to become a go-to resource in its field.']
-# evaluate on cpu for now
-device = 'cpu'
-
 #some defines that are needed for the model
 class Classifier(nn.Module):
     def __init__(self, embedding_model, n_classes, dropout_p=0.1, train_embedder=True):
@@ -60,26 +55,30 @@ class TextClassificationDataset(Dataset):
             'label': torch.tensor(label)
         }
  
-   
-# load the mode, now on CPU
-model = torch.load(path_to_model, map_location=torch.device(device))
-model.eval()
 
-#now create sth from the text that BERT understands (TODO: the label is an artifact from the training code and should be removed)
+def evaluate_bert(text):
+    path_to_model = "./data/bert_classifier.pt"
+    # evaluate on cpu for now
+    device = 'cpu'
 
-tokenizer = AutoTokenizer.from_pretrained('distilbert/distilbert-base-uncased')
-max_len = 128
-batch_size = 16
+    # load the mode, now on CPU
+    model = torch.load(path_to_model, map_location=torch.device(device))
+    model.eval()
 
-eval_data = TextClassificationDataset(dummy_text, [1], tokenizer, max_len)
-eval_loader = DataLoader(eval_data, batch_size=batch_size, shuffle=True)
-batch = next(iter(eval_loader))
+    #now create sth from the text that BERT understands (TODO: the label is an artifact from the training code and should be removed)
+    tokenizer = AutoTokenizer.from_pretrained('distilbert/distilbert-base-uncased')
+    max_len = 128
+    batch_size = 16
 
-with torch.no_grad():
-  input_ids = batch['input_ids'].to(device)
-  attention_mask = batch['attention_mask'].to(device)
-  labels = batch['label'].to(device)
+    eval_data = TextClassificationDataset([text], [1], tokenizer, max_len)
+    eval_loader = DataLoader(eval_data, batch_size=batch_size, shuffle=False)
+    batch = next(iter(eval_loader))
 
-  outputs = model(input_ids, attention_mask)
-  probs = nn.functional.softmax(outputs, dim=1)
-  print("The positivness of this review was evaluated to be {:.2f}%".format(probs[0, 1].item()*100))
+    with torch.no_grad():
+        input_ids = batch['input_ids'].to(device)
+        attention_mask = batch['attention_mask'].to(device)
+        labels = batch['label'].to(device)
+
+        outputs = model(input_ids, attention_mask)
+        probs = nn.functional.softmax(outputs, dim=1)
+        return probs[0, 1].item()*100

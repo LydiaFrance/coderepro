@@ -17,7 +17,7 @@ def clear_output_dir(output_path):
         # Make the folder if it doesn't exist
         os.makedirs(output_path)
 
-def add_fname_to_content(file_path):
+def add_fname_get_content(file_path):
     # Open the target file and read its content
     with open(file_path, 'r', encoding='utf-8') as file:
         content = file.read()
@@ -157,7 +157,7 @@ clear_output_dir(notebook_outputs)
 
 content_to_chunk = ""
 for file in converted_notebooks:
-    content_to_chunk += add_fname_to_content(file)
+    content_to_chunk += add_fname_get_content(file)
 
 chunked_notebooks = chunk_notebooks(content_to_chunk)
 
@@ -171,7 +171,7 @@ clear_output_dir(md_outputs)
 
 content_to_chunk = ""
 for file in md_files:
-    content_to_chunk += add_fname_to_content(file)
+    content_to_chunk += add_fname_get_content(file)
 
 chunked_md = chunk_markdown_scripts(content_to_chunk)
 
@@ -185,7 +185,7 @@ clear_output_dir(py_outputs)
 
 content_to_chunk = ""
 for file in python_files:
-    content_to_chunk += add_fname_to_content(file) 
+    content_to_chunk += add_fname_get_content(file) 
 
 chunked_py = chunk_python_scripts(content_to_chunk)
 
@@ -204,7 +204,7 @@ if not os.path.exists(test_outputs):
 
 content_to_chunk = ""
 for file in test_files:
-    content_to_chunk += add_fname_to_content(file)
+    content_to_chunk += add_fname_get_content(file)
 
 chunked_test = chunk_python_scripts(content_to_chunk)
 

@@ -51,26 +51,26 @@ def chunk_notebooks(nbcontent):
     return nbcontent
 
 
-# Create a new folder inside the temp_repo to store converted notebooks
+# Create a new folder inside the temp_repo to store chunked text
 text_outputs = os.path.join(target_repo_path, "chunked_text_for_llms")
 
 for file in converted_notebooks:
     content_to_chunk = add_fname_to_content(file)
     relative_path = os.path.basename(file)
-    output_fname = text_outputs + relative_path + "_text_for_llm.txt"
+    output_fname = text_outputs + "/" + relative_path + "_text_for_llm.txt"
     with open(output_fname, "w", encoding='utf-8') as f:
         f.write(chunk_notebooks(content_to_chunk))
  
 for file in python_files:
     content_to_chunk = add_fname_to_content(file)
     relative_path = os.path.basename(file)
-    output_fname = text_outputs + relative_path + "_text_for_llm.txt"
+    output_fname = text_outputs + "/" + relative_path + "_text_for_llm.txt"
     with open(output_fname, "w", encoding='utf-8') as f:
         f.write(chunk_python_scripts(content_to_chunk))
 
 for file in md_files:
     content_to_chunk = add_fname_to_content(file)
     relative_path = os.path.basename(file)
-    output_fname = text_outputs + relative_path + "_text_for_llm.txt"
+    output_fname = text_outputs + "/" + relative_path + "_text_for_llm.txt"
     with open(output_fname, "w", encoding='utf-8') as f:
         f.write(chunk_markdown_scripts(content_to_chunk))

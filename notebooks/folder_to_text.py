@@ -107,6 +107,26 @@ def evaluate_folder_structure(depth_dict, subdir_count):
 
     return "".join(overview)
 
+
+def find_absolute_paths(repo_path):
+    absolute_path_pattern = re.compile(r'(?:[A-Z]:\\|\/|Users|user|home)', re.IGNORECASE)
+
+    hardcoded_paths = []
+
+    for root, _, files in os.walk(repo_path):
+        for file in files:
+            file_path = os.path.join(root, file)
+            try:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    for line_num, line in enumerate(f, start=1):
+                        if absolute_path_pattern.search(line):
+                            hardcoded_paths.append((file_path, line_num, line.strip()))
+            except (UnicodeDecodeError, IOError):
+                continue
+
+    return hardcoded_paths
+
+
 def feedback_message(topic, message, output_path):
     """
     Add to a feedback .json file
@@ -127,47 +147,22 @@ def feedback_message(topic, message, output_path):
     with open(feedback_path, "w") as f:
         json.dump(feedback_data, f, indent=4)
 
-def fetch_file_content(file_path):
-    try:
-        with open(file_path, 'rb') as f:
-            content = f.read().decode('utf-8', errors='replace')
-        
-        file_content = f"\n'''--- {file_path} ---\n{content}\n'''"
-        return file_content
-    except Exception as e:
-        print(f"Error reading file {file_path}: {e}")
-        return ""
+def report_hardcoded_paths(hardcoded_paths, target_repo_path, output_path, feedback_message):
+    """
+    Reports hardcoded paths found in files by sending feedback messages.
 
-def fetch_from_file_list(file_list):
-    files_data = []
-    for file_path in file_list:
-        file_content = fetch_file_content(file_path)
-        if file_content:
-            files_data.append(file_content)
-    return files_data
+    Parameters:
+    - hardcoded_paths: A list of tuples containing the file path, line number, and the line content of the hardcoded path.
+    - target_repo_path: The base path of the repository to calculate relative paths.
+    - output_path: The path where the feedback messages are to be sent or stored.
+    - feedback_message: A function to send or store feedback messages. It takes a type, message, and output path as arguments.
+    """
+    if hardcoded_paths:
+        feedback_message("hardcoded_paths", "Absolute and hardcoded paths found in the following files:", output_path)
+        for file_path, line_num, line in hardcoded_paths:
+            relative_path = os.path.relpath(file_path, target_repo_path)
+            feedback_message("hardcoded_path_detail", f"File: {relative_path}, Line: {line_num}, Content: '{line}'", output_path)
 
-
-def write_to_file(files_data, output_path, filename):
-    # Generate a timestamp and create the filename
-    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-    filename = f"{filename}_{timestamp}.txt"
-    
-    # Combine the output path and filename to get the full output file path
-    output_file_path = os.path.join(output_path, filename)
-    
-    # Write the collected file data to the output file
-    with open(output_file_path, "w", encoding='utf-8') as f:
-        f.write("*Local Files*\n")
-        for file_data in files_data:
-            f.write(file_data)
-    return output_file_path
-
-def clean_up_text(output_name):
-    with open(output_name, 'r', encoding='utf-8') as f:
-        text = f.read()
-    cleaned_text = re.sub('\n{3,}', '\n\n', text)
-    with open(output_name, 'w', encoding='utf-8') as f:
-        f.write(cleaned_text)
 
 def convert_jupyter_notebooks(notebook_path_list, converted_folder):
     # Create the output folder if it doesn't exist
@@ -269,7 +264,6 @@ if len(data_folders) == 0:
     feedback_message("missing_data", "Note: No data folder found. For reproducibility, make sure data is available.", output_path)
 
 
-
 # ----- Search for python files and make a list of their paths -----
 python_files = find_files(target_repo_path, ".py")
 
@@ -300,4 +294,15 @@ else:
 
     # Make a list of the converted notebooks
     converted_notebooks = find_files(converted_folder, ".md")
+
+# ----- Search for hardcoded and absolute paths
+    hardcoded_paths = find_absolute_paths(target_repo_path)
+    hardcoded_notebook_paths = find_absolute_paths(converted_folder)
+    hardcoded_paths.extend(hardcoded_notebook_paths)
+    if hardcoded_paths:
+        feedback_message("hardcoded_paths", "Absolute and hardcoded paths found in the following files:", output_path)
+        for file_path, line_num, line in hardcoded_paths:
+            # relative version of the file path:
+            relative_path = os.path.relpath(file_path, target_repo_path)
+            feedback_message("hardcoded_path_detail", f"File: {relative_path}, Line: {line_num}, Content: '{line}'", output_path)
 

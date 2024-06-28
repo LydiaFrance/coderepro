@@ -54,7 +54,7 @@ prompt = ast.literal_eval(fcontents)
 #    with open(file_path, 'r') as file:
 #        file_contents_general_checks.append(file.read())
 
-folder_path = '/Users/danield/PycharmProjects/coderepro/coderepro/temp_repo/output/python/'
+folder_path = './temp_repo/output/python/'
 all_files = os.listdir(folder_path)
 selected_files = random.sample(all_files, 5)
 
@@ -64,7 +64,7 @@ for i, file_name in enumerate(selected_files):
   with open(file_path, 'r') as file:
     file_contents_codequality.append(file.read())
 
-folder_path = '/Users/danield/PycharmProjects/coderepro/coderepro/temp_repo/output/documenation/'
+folder_path = './temp_repo/output/documenation/'
 all_files = os.listdir(folder_path)
 selected_files = random.sample(all_files, 5)
 file_contents_documentation = []
@@ -74,7 +74,7 @@ for i, file_name in enumerate(selected_files):
   with open(file_path, 'r') as file:
     file_contents_documentation.append(file.read())
 
-folder_path = '/Users/danield/PycharmProjects/coderepro/coderepro/temp_repo/output/testing/'
+folder_path = './temp_repo/output/testing/'
 all_files = os.listdir(folder_path)
 selected_files = random.sample(all_files, 5)
 
@@ -84,7 +84,7 @@ for i, file_name in enumerate(selected_files):
   with open(file_path, 'r') as file:
     file_contents_testing.append(file.read())
 
-folder_path = '/Users/danield/PycharmProjects/coderepro/coderepro/temp_repo/output/notebooks'
+folder_path = './temp_repo/output/notebooks'
 all_files = os.listdir(folder_path)
 selected_files = random.sample(all_files, 5)
 
@@ -99,19 +99,17 @@ for i, file_name in enumerate(selected_files):
 
   for i, chunk in enumerate(file_contents_codequality):
     response = talk_to_llama(context=chunk, prompt=prompt[0])
-    with open(f"response_codequality_{i+1}.txt", 'w') as file:
+    with open(f"./temp_repo/output/response_codequality_{i+1}.txt", 'w') as file:
       file.write(response)
   for i, chunk in enumerate(file_contents_documentation):
     response = talk_to_llama(context=chunk, prompt=prompt[1])
-    with open(f"response_documentation_{i+1}.txt", 'w') as file:
+    with open(f"./temp_repo/output/response_documentation_{i+1}.txt", 'w') as file:
       file.write(response)
   for i, chunk in enumerate(file_contents_testing):
     response = talk_to_llama(context=chunk, prompt=prompt[2])
-    with open(f"response_testing_{i+1}.txt", 'w') as file:
+    with open(f"./temp_repo/output/response_testing_{i+1}.txt", 'w') as file:
       file.write(response)
   for i, chunk in enumerate(file_contents_notebooks):
     response = talk_to_llama(context=chunk, prompt=prompt[3])
-    with open(f"response_notebooks_{i+1}.txt", 'w') as file:
+    with open(f"./temp_repo/output/response_notebooks_{i+1}.txt", 'w') as file:
       file.write(response)
-
-

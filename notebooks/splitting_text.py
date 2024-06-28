@@ -1,3 +1,4 @@
+import re
 import folder_to_text
 from folder_to_text import target_repo_path, converted_notebooks, python_files, md_files, test_files
 import os
@@ -17,119 +18,117 @@ def clear_output_dir(output_path):
         # Make the folder if it doesn't exist
         os.makedirs(output_path)
 
+
+def chunk_content_with_delimiters(content, splitters):
+
+    def split_and_keep_delimiters(content, delimiter):
+        parts = re.split(f'({delimiter})', content)
+
+        chunks = []
+        # Combine each pair of parts
+        for i in range(0, len(parts) - 1, 2):
+            chunk = parts[i] + parts[i + 1]
+            chunks.append(chunk)
+
+        # Add the last part if it's not empty
+        if parts[-1]:
+            chunks.append(parts[-1])
+
+        return chunks
+    
+    def recursive_split(content, splitters):
+        # Base case: no more splitters
+        if not splitters:
+            return [content]
+
+        # Split the content using the first splitter
+        delimiter = splitters[0]
+        splits = split_and_keep_delimiters(content, delimiter)
+
+        # Recursively split each chunk
+        result = []
+        for split in splits:
+            split = re.sub(r'\n+', '\n', split)  # Replace multiple newlines with a single newline
+            if len(split) > NCHAR and len(splitters) > 1:
+                result.extend(recursive_split(split, splitters[1:]))
+            else:
+                result.append(split)
+    
+        return result
+    
+    def force_split_chunks(chunks, max_length):
+        """
+        Splits chunks of text into smaller parts if they exceed a specified maximum length.
+
+        Parameters:
+        - chunks: A list of text chunks to be potentially split.
+        - max_length: The maximum allowed length for any single chunk.
+
+        Returns:
+        A list of text chunks, none of which exceeds the specified maximum length.
+        """
+        final_splits = []
+        for chunk in chunks:
+            while len(chunk) > max_length:
+                final_splits.append(chunk[:max_length])
+                chunk = chunk[max_length:]
+            final_splits.append(chunk)
+        return final_splits
+    
+    def combine_chunks(chunks, max_length):
+        """
+        Combines chunks of text into larger parts until the total length of the combined text exceeds a specified maximum length.
+
+        Parameters:
+        - chunks: A list of text chunks to be combined.
+        - max_length: The maximum allowed length for the combined text.
+
+        Returns:
+        A list of text chunks, each of which is the concatenation of the input chunks, such that no chunk exceeds the specified maximum length.
+        """
+        combined_chunks = []
+        current_chunk = ""
+        for chunk in chunks:
+            # If adding the next chunk would exceed the maximum length, start a new chunk
+            if len(current_chunk) + len(chunk) + 1 > max_length:
+                combined_chunks.append(current_chunk)
+                current_chunk = chunk
+            else:
+                # Add a newline between chunks
+                current_chunk += "\n" + chunk if current_chunk else chunk
+
+        # Add the last chunk if it's not empty
+        if current_chunk:
+            combined_chunks.append(current_chunk)
+
+        return combined_chunks
+
+    # Split the content recursively using the splitters. 
+    # Always split by newline if the content is too long
+    split_content = recursive_split(content, splitters + ['\n'])
+
+    # Force split any chunks that are too long
+    split_content = force_split_chunks(split_content, NCHAR)
+
+    # Combine the chunks into parts that are not too long
+    combined_content = combine_chunks(split_content, NCHAR)
+
+    # Once again, remove multiple newlines
+    combined_content = [re.sub(r'\n+', '\n', chunk) for chunk in combined_content]
+    
+    return combined_content
+
 def add_fname_get_content(file_path):
     # Open the target file and read its content
     with open(file_path, 'r', encoding='utf-8') as file:
         content = file.read()
+    # Replace multiple newlines with a single newline
+    content = re.sub(r'\n+', '\n', content)
     # Append the name of the file to the start of the content
     relative_path = os.path.basename(file_path)
-    file_content = ""
-    file_content += f"\n'''--- {relative_path} ---\n"
-    file_content += content
+    file_content = f"\n'''--- {relative_path} ---\n" + content
     return file_content
 
-def chunk_markdown_scripts(mdcontent):
-    # Split the content by hash
-    hash_splits = mdcontent.split('#')
-    # If any chunk is too long, split by newline
-    newline_splits = []
-    for chunk in hash_splits:
-        if len(chunk) > NCHAR:
-            newline_splits.extend(chunk.split('\n'))
-        else:
-            newline_splits.append(chunk)
-    # If any chunk is too long, force split
-    final_splits = []
-    for chunk in newline_splits:
-        if len(chunk) > NCHAR:
-            final_splits.extend(chunk[:NCHAR])
-        else:
-            final_splits.append(chunk)
-    # Combine all the chunks
-    combined_splits = []
-    current_chunk = ""
-    for chunk in final_splits:
-        if len(current_chunk) + len(chunk) + 1 > NCHAR:
-            combined_splits.append(current_chunk)
-            current_chunk = chunk
-        else:
-            current_chunk += "\n" + chunk if current_chunk else chunk
-
-    if current_chunk:
-        combined_splits.append(current_chunk)
-
-    return combined_splits
-
-def chunk_python_scripts(pycontent):
-    # Split the content by class
-    class_splits = pycontent.split('class ')
-    # If any chunk is too long, split by def
-    def_splits = []
-    for chunk in class_splits:
-        if len(chunk) > NCHAR:
-            def_splits.extend(chunk.split('def '))
-        else:
-            def_splits.append(chunk)
-    # If any chunk is too long, split by newline
-    newline_splits = []
-    for chunk in def_splits:
-        if len(chunk) > NCHAR:
-            newline_splits.extend(chunk.split('\n'))
-        else:
-            newline_splits.append(chunk)
-    # If any chunk is too long, force split
-    final_splits = []
-    for chunk in newline_splits:
-        if len(chunk) > NCHAR:
-            final_splits.extend(chunk[:NCHAR])
-        else:
-            final_splits.append(chunk)
-    # Combine all the chunks
-    combined_splits = []
-    current_chunk = ""
-    for chunk in final_splits:
-        if len(current_chunk) + len(chunk) + 1 > NCHAR:
-            combined_splits.append(current_chunk)
-            current_chunk = chunk
-        else:
-            current_chunk += "\n" + chunk if current_chunk else chunk
-
-    if current_chunk:
-        combined_splits.append(current_chunk)
-
-    return combined_splits
-
-def chunk_notebooks(nbcontent):
-    # Split the content by ```
-    hash_splits = nbcontent.split('```')
-    # If any chunk is too long, split by newline
-    newline_splits = []
-    for chunk in hash_splits:
-        if len(chunk) > NCHAR:
-            newline_splits.extend(chunk.split('\n'))
-        else:
-            newline_splits.append(chunk)
-    # If any chunk is too long, force split
-    final_splits = []
-    for chunk in newline_splits:
-        if len(chunk) > NCHAR:
-            final_splits.extend(chunk[:NCHAR])
-        else:
-            final_splits.append(chunk)
-    # Combine all the chunks
-    combined_splits = []
-    current_chunk = ""
-    for chunk in final_splits:
-        if len(current_chunk) + len(chunk) + 1 > NCHAR:
-            combined_splits.append(current_chunk)
-            current_chunk = chunk
-        else:
-            current_chunk += "\n" + chunk if current_chunk else chunk
-
-    if current_chunk:
-        combined_splits.append(current_chunk)
-
-    return combined_splits
 
 def write_chunks_to_files(chunked_text, output_directory):
     """
@@ -159,7 +158,7 @@ content_to_chunk = ""
 for file in converted_notebooks:
     content_to_chunk += add_fname_get_content(file)
 
-chunked_notebooks = chunk_notebooks(content_to_chunk)
+chunked_notebooks = chunk_content_with_delimiters(content_to_chunk, ['```python\n', '```markdown\n', '```\n'])
 
 # Write the chunks to files
 write_chunks_to_files(chunked_notebooks, notebook_outputs)
@@ -173,7 +172,7 @@ content_to_chunk = ""
 for file in md_files:
     content_to_chunk += add_fname_get_content(file)
 
-chunked_md = chunk_markdown_scripts(content_to_chunk)
+chunked_md = chunk_content_with_delimiters(content_to_chunk, ['\n# ', '\n## ', '\n### ', '\n#### ', '\n##### '])
 
 # Write the chunks to files
 write_chunks_to_files(chunked_md, md_outputs)
@@ -187,7 +186,7 @@ content_to_chunk = ""
 for file in python_files:
     content_to_chunk += add_fname_get_content(file) 
 
-chunked_py = chunk_python_scripts(content_to_chunk)
+chunked_py = chunk_content_with_delimiters(content_to_chunk, ['\nclass ', '\ndef ', '\nif ', '\nfor ', '\nwhile '])
 
 # Write the chunks to files
 write_chunks_to_files(chunked_py, py_outputs)
@@ -206,7 +205,7 @@ content_to_chunk = ""
 for file in test_files:
     content_to_chunk += add_fname_get_content(file)
 
-chunked_test = chunk_python_scripts(content_to_chunk)
+chunked_test = chunk_content_with_delimiters(content_to_chunk, ['\nclass ','\ndef ', '\nif '])
 
 # Write the chunks to files
 write_chunks_to_files(chunked_test, test_outputs)

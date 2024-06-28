@@ -13,7 +13,6 @@ def add_fname_to_content(file_path):
     relative_path = os.path.basename(file_path)
     file_content = ""
     file_content += f"\n'''--- {relative_path} ---\n"
-    file_content += "\n'''"
     file_content += content
     return file_content
 
@@ -52,17 +51,22 @@ def chunk_notebooks(nbcontent):
         nbcontent = split_by_character(nbcontent, keyword = '```')
     return nbcontent
 
-
 # Create a new folder inside the temp_repo to store chunked text
 text_outputs = os.path.join(target_repo_path, "chunked_text_for_llms")
 os.mkdir(text_outputs)
 
+content_to_chunk = ""
 for file in converted_notebooks:
-    content_to_chunk = add_fname_to_content(file)
-    relative_path = os.path.basename(file)
-    output_fname = text_outputs + "/" + relative_path + "_text_for_llm.txt"
-    with open(output_fname, "w", encoding='utf-8') as f:
-        f.write(chunk_notebooks(content_to_chunk))
+    content_to_chunk += add_fname_to_content(file)
+
+ctr = 0
+while len(content_to_chunk) < NCHAR:
+    ctr += 1
+
+
+output_fname = text_outputs + "/notebook_text_for_llm", + str(ctr) + ".txt"
+with open(output_fname, "w", encoding='utf-8') as f:
+    f.write()
  
 for file in python_files:
     content_to_chunk = add_fname_to_content(file)
@@ -77,3 +81,5 @@ for file in md_files:
     output_fname = text_outputs + "/" + relative_path + "_text_for_llm.txt"
     with open(output_fname, "w", encoding='utf-8') as f:
         f.write(chunk_markdown_scripts(content_to_chunk))
+
+

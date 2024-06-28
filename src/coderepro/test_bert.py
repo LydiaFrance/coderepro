@@ -1,7 +1,10 @@
+from pathlib import Path
 import torch
 from torch import nn
 from torch.utils.data import Dataset, DataLoader
 from transformers import AutoModel, AutoTokenizer
+
+CWD = Path(__file__).resolve().parent
 
 # TODO: find a better way to host the model
 # if you run this for the first time, make sure you get the model first
@@ -57,7 +60,7 @@ class TextClassificationDataset(Dataset):
  
 
 def evaluate_bert(text):
-    path_to_model = "./data/bert_classifier.pt"
+    path_to_model = CWD / "data/bert_classifier.pt"
     # evaluate on cpu for now
     device = 'cpu'
 

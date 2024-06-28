@@ -20,7 +20,16 @@ python -m pip install .
 ```
 
 ## Usage
+After installation, the command `coderepro` should be available from your command line.
 
+```bash
+coderepro <github url>
+```
+e.g.
+
+```bash
+coderepro https://github.com/LydiaFrance/coderepro
+```
 
 ## Contributing
 

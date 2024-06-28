@@ -85,6 +85,28 @@ def check_folder_structure(base_path):
 
     return depth_dict, subdir_count
 
+def evaluate_folder_structure(depth_dict, subdir_count):
+    max_depth = max(depth_dict.keys())
+    total_folders = sum(depth_dict.values())
+
+    overview = []
+    overview.append(f"The repository has a total of {total_folders} folders.")
+    overview.append(f"The maximum depth of the folder structure is {max_depth}.")
+
+    if max_depth == 0:
+        overview.append("The repository has a completely flat structure. Consider organizing files into directories to improve manageability.")
+    elif max_depth > 3:
+        overview.append(f"The repository structure is quite deep. Consider simplifying the directory hierarchy to improve navigability.")
+
+    for depth, count in depth_dict.items():
+        overview.append(f"  Depth {depth}: {count} folder(s)")
+
+    for dir_path, count in subdir_count.items():
+        if count > 10:  # Arbitrary threshold for too many subdirectories
+            overview.append(f"The directory '{dir_path}' contains too many subdirectories ({count}). Consider restructuring to improve clarity.")
+
+    return "".join(overview)
+
 def feedback_message(topic, message, output_path):
     """
     Add to a feedback .json file
@@ -99,7 +121,7 @@ def feedback_message(topic, message, output_path):
         feedback_data = {}
 
     # Add the new feedback
-    feedback_data[topic] = message
+    feedback_data[topic.upper()] = message
 
     # Write the updated feedback data back to the file
     with open(feedback_path, "w") as f:
@@ -195,10 +217,10 @@ if not os.path.exists(output_path):
 
 # ----- Critique the file structure of the repository -----
 depth_dict, subdir_count = check_folder_structure(target_repo_path)
-feedback_message("folder_structure", f"Folder structure: {depth_dict}", output_path)
-feedback_message("subdir_count", f"Subdirectory count: {subdir_count}", output_path)
 
-
+# Evaluate and provide an overview of the folder structure
+folder_structure_overview = evaluate_folder_structure(depth_dict, subdir_count)
+feedback_message("folder_structure_overview", folder_structure_overview, output_path)
 
 
 
@@ -249,7 +271,6 @@ if len(data_folders) == 0:
 
 
 
-
 # ----- Search for python files and make a list of their paths -----
 python_files = find_files(target_repo_path, ".py")
 
@@ -270,7 +291,8 @@ if len(notebook_files) == 0:
     converted_notebooks = []
 else:
     # Create a new folder inside the temp_repo to store converted notebooks
-    converted_folder = os.path.join(target_repo_path, "converted_notebooks")
+    temp_repo_path = os.path.dirname(target_repo_path)
+    converted_folder = os.path.join(temp_repo_path, "output/converted_notebooks")
 
     # Convert the notebooks to markdown
     convert_jupyter_notebooks(notebook_files, converted_folder)

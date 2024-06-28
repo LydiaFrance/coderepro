@@ -1,6 +1,6 @@
-from langchain_text_splitters import CharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 import folder_to_text
-from folder_to_text import target_repo_path, converted_notebooks, python_files, md_files
+from folder_to_text import target_repo_path, converted_notebooks, python_files, md_files, test_files
 import os
 
 NCHAR=7000
@@ -16,24 +16,38 @@ def add_fname_to_content(file_path):
     file_content += content
     return file_content
 
-def split_by_character(content, keyword):
-    text_splitter = CharacterTextSplitter(
-        separator=keyword,
-        chunk_size=NCHAR,
-        chunk_overlap=0,
-        length_function=len,
-        is_separator_regex=False,
-    )
-    chunked_text = text_splitter.create_documents([content])
-    return chunked_text
-
 def chunk_markdown_scripts(mdcontent):
-    if len(mdcontent) > NCHAR:
-        # Split the content by class
-        mdcontent = split_by_character(mdcontent, keyword = '#')
-        if len(mdcontent) > NCHAR: 
-            mdcontent = split_by_character(mdcontent, keyword = '\n')
-    return mdcontent
+    # Split the content by hash
+    hash_splits = mdcontent.split('#')
+    # If any chunk is too long, split by newline
+    newline_splits = []
+    for chunk in hash_splits:
+        if len(chunk) > NCHAR:
+            newline_splits.extend(chunk.split('\n'))
+        else:
+            newline_splits.append(chunk)
+    # If any chunk is too long, force split
+    final_splits = []
+    for chunk in newline_splits:
+        if len(chunk) > NCHAR:
+            final_splits.extend(chunk[:NCHAR])
+        else:
+            final_splits.append(chunk)
+    # Combine all the chunks
+    combined_splits = []
+    current_chunk = ""
+    for chunk in final_splits:
+        if len(current_chunk) + len(chunk) + 1 > NCHAR:
+            combined_splits.append(current_chunk)
+            current_chunk = chunk
+        else:
+            current_chunk += "\n" + chunk if current_chunk else chunk
+
+    if current_chunk:
+        combined_splits.append(current_chunk)
+
+    return combined_splits
+
 
 def chunk_python_scripts(pycontent):
     if len(pycontent) > NCHAR:
@@ -49,10 +63,13 @@ def chunk_notebooks(nbcontent):
     if len(nbcontent) > NCHAR:
         # Split the content 
         nbcontent = split_by_character(nbcontent, keyword = '```')
+        if len(nbcontent) > NCHAR:
+            nbcontent = split_by_character(mdcontent, keyword = '\n')
     return nbcontent
 
 # Create a new folder inside the temp_repo to store chunked text
-text_outputs = os.path.join(target_repo_path, "chunked_text_for_llms")
+path_to_temp = os.path.dirname(target_repo_path)
+text_outputs = os.path.join(path_to_temp, "output/chunked_text_for_llms")
 os.mkdir(text_outputs)
 
 # For notebooks
@@ -100,5 +117,22 @@ chunked_py = chunk_python_scripts(content_to_chunk)
 # Print the chunks
 for index, text in enumerate(chunked_py):
     output_fname = py_outputs + "/chunk" + str(index) + ".txt"
+    with open(output_fname, "w", encoding='utf-8') as f:
+        f.write(text.page_content)
+
+
+# For test files (python scripts)
+test_outputs = os.path.join(text_outputs, "test_files")
+os.mkdir(test_outputs)
+
+content_to_chunk = ""
+for file in test_files:
+    content_to_chunk += add_fname_to_content(file)
+
+chunked_test = chunk_python_scripts(content_to_chunk)
+
+# Print the chunks
+for index, text in enumerate(chunked_test):
+    output_fname = test_outputs + "/chunk" + str(index) + ".txt"
     with open(output_fname, "w", encoding='utf-8') as f:
         f.write(text.page_content)

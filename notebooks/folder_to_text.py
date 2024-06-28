@@ -195,7 +195,7 @@ def convert_jupyter_notebooks(notebook_path_list, converted_folder):
             with open(output_path, 'w', encoding='utf-8') as md_file:
                 md_file.write(body)
                 
-            print(f"Converted {notebook_path} to {output_path}")
+            #print(f"Converted {notebook_path} to {output_path}")
         except Exception as e:
             print(f"Error converting {notebook_path}: {e}")
 
@@ -213,7 +213,6 @@ output_path = os.path.dirname(target_repo_path) + "/output"
 # Make the folder if it doesn't exist
 if not os.path.exists(output_path):
     os.makedirs(output_path)
-
 
 # ----- Critique the file structure of the repository -----
 depth_dict, subdir_count = check_folder_structure(target_repo_path)

@@ -48,24 +48,76 @@ def chunk_markdown_scripts(mdcontent):
 
     return combined_splits
 
-
 def chunk_python_scripts(pycontent):
-    if len(pycontent) > NCHAR:
-        # Split the content
-        pycontent = split_by_character(pycontent, keyword = 'class ')
-        if len(pycontent) > NCHAR: 
-            pycontent = split_by_character(pycontent, keyword = 'def ')
-            if len(pycontent) > NCHAR:
-                pycontent = split_by_character(pycontent, keyword = '\n\n')
-    return pycontent
+    # Split the content by class
+    class_splits = pycontent.split('class ')
+    # If any chunk is too long, split by def
+    def_splits = []
+    for chunk in def_splits:
+        if len(chunk) > NCHAR:
+            def_splits.extend(chunk.split('def '))
+        else:
+            def_splits.append(chunk)
+    # If any chunk is too long, split by newline
+    newline_splits = []
+    for chunk in def_splits:
+        if len(chunk) > NCHAR:
+            newline_splits.extend(chunk.split('\n'))
+        else:
+            newline_splits.append(chunk)
+    # If any chunk is too long, force split
+    final_splits = []
+    for chunk in newline_splits:
+        if len(chunk) > NCHAR:
+            final_splits.extend(chunk[:NCHAR])
+        else:
+            final_splits.append(chunk)
+    # Combine all the chunks
+    combined_splits = []
+    current_chunk = ""
+    for chunk in final_splits:
+        if len(current_chunk) + len(chunk) + 1 > NCHAR:
+            combined_splits.append(current_chunk)
+            current_chunk = chunk
+        else:
+            current_chunk += "\n" + chunk if current_chunk else chunk
+
+    if current_chunk:
+        combined_splits.append(current_chunk)
+
+    return combined_splits
 
 def chunk_notebooks(nbcontent):
-    if len(nbcontent) > NCHAR:
-        # Split the content 
-        nbcontent = split_by_character(nbcontent, keyword = '```')
-        if len(nbcontent) > NCHAR:
-            nbcontent = split_by_character(mdcontent, keyword = '\n')
-    return nbcontent
+    # Split the content by ```
+    hash_splits = nbcontent.split('```')
+    # If any chunk is too long, split by newline
+    newline_splits = []
+    for chunk in hash_splits:
+        if len(chunk) > NCHAR:
+            newline_splits.extend(chunk.split('\n'))
+        else:
+            newline_splits.append(chunk)
+    # If any chunk is too long, force split
+    final_splits = []
+    for chunk in newline_splits:
+        if len(chunk) > NCHAR:
+            final_splits.extend(chunk[:NCHAR])
+        else:
+            final_splits.append(chunk)
+    # Combine all the chunks
+    combined_splits = []
+    current_chunk = ""
+    for chunk in final_splits:
+        if len(current_chunk) + len(chunk) + 1 > NCHAR:
+            combined_splits.append(current_chunk)
+            current_chunk = chunk
+        else:
+            current_chunk += "\n" + chunk if current_chunk else chunk
+
+    if current_chunk:
+        combined_splits.append(current_chunk)
+
+    return combined_splits
 
 # Create a new folder inside the temp_repo to store chunked text
 path_to_temp = os.path.dirname(target_repo_path)

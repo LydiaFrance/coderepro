@@ -25,7 +25,7 @@ def split_by_character(content, keyword):
         is_separator_regex=False,
     )
     chunked_text = text_splitter.create_documents([content])
-    return chunked_text[0].page_content
+    return chunked_text
 
 def chunk_markdown_scripts(mdcontent):
     if len(mdcontent) > NCHAR:
@@ -55,31 +55,50 @@ def chunk_notebooks(nbcontent):
 text_outputs = os.path.join(target_repo_path, "chunked_text_for_llms")
 os.mkdir(text_outputs)
 
+# For notebooks
+notebook_outputs = os.path.join(text_outputs, "notebooks")
+os.mkdir(notebook_outputs)
+
 content_to_chunk = ""
 for file in converted_notebooks:
     content_to_chunk += add_fname_to_content(file)
 
-ctr = 0
-while len(content_to_chunk) < NCHAR:
-    ctr += 1
+chunked_notebooks = chunk_notebooks(content_to_chunk)
 
-
-output_fname = text_outputs + "/notebook_text_for_llm", + str(ctr) + ".txt"
-with open(output_fname, "w", encoding='utf-8') as f:
-    f.write()
- 
-for file in python_files:
-    content_to_chunk = add_fname_to_content(file)
-    relative_path = os.path.basename(file)
-    output_fname = text_outputs + "/" + relative_path + "_text_for_llm.txt"
+# Print the chunks
+for index, text in enumerate(chunked_notebooks):
+    output_fname = notebook_outputs + "/chunk" + str(index) + ".txt"
     with open(output_fname, "w", encoding='utf-8') as f:
-        f.write(chunk_python_scripts(content_to_chunk))
+        f.write(text.page_content)
 
+# For markdown documentation
+md_outputs = os.path.join(text_outputs, "markdown")
+os.mkdir(md_outputs)
+
+content_to_chunk = ""
 for file in md_files:
-    content_to_chunk = add_fname_to_content(file)
-    relative_path = os.path.basename(file)
-    output_fname = text_outputs + "/" + relative_path + "_text_for_llm.txt"
+    content_to_chunk += add_fname_to_content(file)
+
+chunked_md = chunk_markdown_scripts(content_to_chunk)
+
+# Print the chunks
+for index, text in enumerate(chunked_md):
+    output_fname = md_outputs + "/chunk" + str(index) + ".txt"
     with open(output_fname, "w", encoding='utf-8') as f:
-        f.write(chunk_markdown_scripts(content_to_chunk))
+        f.write(text.page_content)
 
+# For python scripts
+py_outputs = os.path.join(text_outputs, "python_scripts")
+os.mkdir(py_outputs)
 
+content_to_chunk = ""
+for file in python_files:
+    content_to_chunk += add_fname_to_content(file)
+
+chunked_py = chunk_python_scripts(content_to_chunk)
+
+# Print the chunks
+for index, text in enumerate(chunked_py):
+    output_fname = py_outputs + "/chunk" + str(index) + ".txt"
+    with open(output_fname, "w", encoding='utf-8') as f:
+        f.write(text.page_content)

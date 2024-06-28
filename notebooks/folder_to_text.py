@@ -291,7 +291,8 @@ if len(notebook_files) == 0:
     converted_notebooks = []
 else:
     # Create a new folder inside the temp_repo to store converted notebooks
-    converted_folder = os.path.join(target_repo_path, "converted_notebooks")
+    temp_repo_path = os.path.dirname(target_repo_path)
+    converted_folder = os.path.join(temp_repo_path, "output/converted_notebooks")
 
     # Convert the notebooks to markdown
     convert_jupyter_notebooks(notebook_files, converted_folder)

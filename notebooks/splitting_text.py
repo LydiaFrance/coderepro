@@ -1,5 +1,7 @@
 from langchain_text_splitters import CharacterTextSplitter
 import folder_to_text
+from folder_to_text import *
+import os
 
 NCHAR=7000
 
@@ -53,6 +55,7 @@ def chunk_notebooks(nbcontent):
 
 # Create a new folder inside the temp_repo to store chunked text
 text_outputs = os.path.join(target_repo_path, "chunked_text_for_llms")
+os.mkdir(text_outputs)
 
 for file in converted_notebooks:
     content_to_chunk = add_fname_to_content(file)

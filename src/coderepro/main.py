@@ -6,6 +6,7 @@ import logging
 
 BASH_SCRIPT = "get_repo.sh"
 SCRAPE_SCRIPT = "splitting_text.py"
+PROMPT_SCRIPT = "fileStructure.py"
 BERT_URL = "https://cernbox.cern.ch/remote.php/dav/public-files/QV47M3dk0eXGdbe/bert_classifier.pt"
 
 CWD = Path(__file__).resolve().parent
@@ -85,8 +86,17 @@ def download_bert():
 
 def run_scraping(script_path):
     logging.info("Running scraping script on local files...")
-    pass
+    python_script_path = CWD.parents[1] / "notebooks" / script_path
+    stdout, stderr = run_python_script(python_script_path)
 
+def run_prompts(script_path):
+    logging.info("Running prompts script on local files...")
+    python_script_path = CWD.parents[1] / "notebooks" / script_path
+    stdout, stderr = run_python_script(python_script_path)
+    print(stdout, stderr)
+
+def make_summary_table():
+    pass
 
 @click.command()
 @click.argument("repo_url")
@@ -97,6 +107,7 @@ def main(repo_url):
     download_bert()
     run_bash_script(BASH_SCRIPT, repo_url)
     run_scraping(SCRAPE_SCRIPT)
+    run_prompts(PROMPT_SCRIPT)
 
 if __name__ == "__main__":
     main()

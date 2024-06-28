@@ -5,7 +5,7 @@ from terminaltables import SingleTable
 from textwrap import wrap
 import json
 
-test_data_path = "./tmp_repo/output/"
+test_data_path = "./temp_repo/output/"
 
 categories = ["General checks", "Code quality", "Documentation", "Testing", "Summary"]
 

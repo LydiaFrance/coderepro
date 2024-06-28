@@ -44,7 +44,7 @@ for idx, cat in enumerate(categories):
         feedback_table.append(cat_feedback)
 
 #print table
-table_instance = SingleTable(feedback_table, "Feedback")
+table_instance = SingleTable(feedback_table, "CodeRepro")
 
 max_width = table_instance.column_max_width(1)
 for entry in table_instance.table_data:

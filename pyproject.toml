@@ -44,7 +44,8 @@ dependencies = ["ollama",
                 "torch", 
                 "transformers",
                 "nbformat",
-                "nbconvert",]
+                "nbconvert",
+                "langchain",]
 
 [project.optional-dependencies]
 dev = [

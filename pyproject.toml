@@ -45,7 +45,10 @@ dependencies = ["ollama",
                 "transformers",
                 "nbformat",
                 "nbconvert",
-                "langchain",]
+                "langchain",
+                "jupyter",
+                "notebook",
+                "terminaltables",]
 
 [project.optional-dependencies]
 dev = [

@@ -113,5 +113,3 @@ for i, file_name in enumerate(selected_files):
     response = talk_to_llama(context=chunk, prompt=prompt[3])
     with open(f"response_notebooks_{i+1}.txt", 'w') as file:
       file.write(response)
-
-

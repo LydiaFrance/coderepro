@@ -1,11 +1,14 @@
 import os
+from pathlib import Path
 from test_bert import Classifier, TextClassificationDataset
 import test_bert
 from terminaltables import SingleTable
 from textwrap import wrap
 import json
 
-test_data_path = "./temp_repo/output/"
+CWD = Path(__file__).resolve().parent
+
+test_data_path = CWD.parents[1].resolve() / "temp_repo/output/"
 
 categories = ["General checks", "Code quality", "Documentation", "Testing", "Summary"]
 
@@ -15,7 +18,7 @@ feedback_table = [["Category", "Feedback", "Score"]]
 #first summarize the manual checks without the LLM
 fc_table_entry = ["File checks"]
 fc_table_entry_text = ""
-with open(os.path.join(test_data_path, "feedback.json")) as f:
+with open( test_data_path / "feedback.json") as f:
     file_check_dict = json.load(f)
 for fc_item in file_check_dict.values():
     fc_table_entry_text += fc_item
@@ -33,7 +36,7 @@ for idx, cat in enumerate(categories):
         eval_text = raw_text.replace('\n', '').replace("*", " ")
         sentiment_score = test_bert.evaluate_bert(eval_text)
         #TODO: this is a tmp fix because the summary score may differ greatly from the individual scores
-        if cat is "Summary":
+        if cat == "Summary":
             sentiment_score = sum_of_scores/(len(categories)-1)
         else:
             sum_of_scores  += sentiment_score

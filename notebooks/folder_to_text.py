@@ -6,7 +6,6 @@ import nbformat
 from nbconvert import MarkdownExporter
 
 
-
 def find_repo_path(current_path, temp_repo_dir="temp_repo"):
 
     # Find the path of the target repository
@@ -65,6 +64,26 @@ def find_files_with_keyword(directory, keyword):
                 if keyword.lower() in file.lower():
                     matched_files.append(os.path.join(root, file))
         return matched_files
+
+def find_folders_with_keyword(base_path, dir_names):
+    """
+    Check for directories in the base path.
+    """
+    found_dirs = [d for d in os.listdir(base_path) if os.path.isdir(os.path.join(base_path, d)) and d.lower() in dir_names]
+    return found_dirs
+
+def check_folder_structure(base_path):
+    depth_dict = {}
+    subdir_count = {}
+    for root, dirs, files in os.walk(base_path):
+        depth = root.replace(base_path, '').count(os.sep)
+        if depth not in depth_dict:
+            depth_dict[depth] = 0
+        depth_dict[depth] += 1
+
+        subdir_count[depth] = len(dirs)
+
+    return depth_dict, subdir_count
 
 def feedback_message(topic, message, output_path):
     """
@@ -158,13 +177,14 @@ def convert_jupyter_notebooks(notebook_path_list, converted_folder):
         except Exception as e:
             print(f"Error converting {notebook_path}: {e}")
 
-# Define the paths to the local repositories
+# ----- Define the paths to the local repositories
 # find the path of this script
 script_path, root_path = find_script_path()
 
 # Use the root of this path to find the temp_repo folder
 target_repo_path = find_repo_path(root_path)
 
+# ----- Setup output folder -----
 # Find the path of the output folder
 output_path = os.path.dirname(target_repo_path) + "/output"
 
@@ -173,34 +193,77 @@ if not os.path.exists(output_path):
     os.makedirs(output_path)
 
 
-# Search for License
+# ----- Critique the file structure of the repository -----
+depth_dict, subdir_count = check_folder_structure(target_repo_path)
+feedback_message("folder_structure", f"Folder structure: {depth_dict}", output_path)
+feedback_message("subdir_count", f"Subdirectory count: {subdir_count}", output_path)
+
+
+
+
+
+# ----- Search for src/source/app
+source_folders = find_folders_with_keyword(target_repo_path, ["src", "source", "app"])
+if len(source_folders) == 0:
+    feedback_message("missing_src", "No source folder found. A source folder is a common convention for storing the main code of a project. It helps keep the project organized and makes it easier for others to understand the structure of the code.", output_path)
+
+# ----- Search for tests
+test_folders = find_folders_with_keyword(target_repo_path, ["tests", "test"])
+test_files = find_files_with_keyword(target_repo_path, ["test", "tests"])
+if len(test_folders) == 0 and len(test_files) == 0:
+    feedback_message("missing_tests", "Couldn't find test files. Writing and running tests to ensure the correctness of your code. Without tests, it is difficult to verify that your code works as expected and to catch bugs early.", output_path)
+
+# ----- Search for tutorials or examples
+tutorial_files = find_files_with_keyword(target_repo_path, ["tutorial", "example"])
+tutorial_folders = find_folders_with_keyword(target_repo_path, ["tutorial", "example"])
+if len(tutorial_files) == 0 and len(tutorial_folders) == 0:
+    feedback_message("missing_tutorials", "No tutorial or example files found. Tutorials and examples help users understand how to use your code and can serve as a reference for new contributors.", output_path)
+
+# ----- Search for License
 license_files = find_files_with_keyword(target_repo_path, "license")
 if len(license_files) == 0:
     feedback_message("missing_license", "No license file found. Without a license, others may not legally use, copy, modify, or distribute your code. Without a license, this creates legal uncertainty, reduces collaboration, and limits use.", output_path)
 
-# Search for README
+# ----- Search for README
 readme_file = find_files_with_keyword(target_repo_path, "readme")
 if len(readme_file) == 0:
     feedback_message("missing_readme", "No readme file found. Without a readme, users won't know how to use or read your software.", output_path)
 
 
-# Search for requirements
-requirements_file = find_files_with_keyword(target_repo_path, [".toml","requirements.txt", "setup.py", ])
+# ----- Search for requirements
+requirements_file = find_files_with_keyword(target_repo_path, [".toml","requirements.txt", "setup.py", "setup", "requirements" ])
 if len(requirements_file) == 0:
     feedback_message("missing_requirements", "Your repository is missing a requirements.txt, .toml, or setup.py file. Without these files, users and contributors cannot easily install dependencies or understand the project’s configuration, leading to difficulties in setting up and running the project.", output_path)
 
 
-# Search for python files and make a list of their paths
+
+# ----- Search for docs
+doc_folders = find_folders_with_keyword(target_repo_path, ["docs", "doc"])
+if len(doc_folders) == 0:
+    feedback_message("missing_docs", "Note: No docs folder found. Consider adding a docs folder -- it helps users and contributors understand how to use and contribute to the project.", output_path)
+
+# ----- Search for data
+data_folders = find_folders_with_keyword(target_repo_path, ["data"])
+if len(data_folders) == 0:
+    feedback_message("missing_data", "Note: No data folder found. For reproducibility, make sure data is available.", output_path)
+
+
+
+
+# ----- Search for python files and make a list of their paths -----
 python_files = find_files(target_repo_path, ".py")
 
-# Search for markdown files and make a list of their paths
+# Exclude any test files from the list using the test_files list
+if test_files:
+    python_files = [file for file in python_files if file not in test_files]
+
+
+
+# ----- Search for markdown files and make a list of their paths -----
 md_files = find_files(target_repo_path, ".md")
 
-
-# Search for notebooks and make a list of their paths
+# ----- Search for notebooks and make a list of their paths -----
 notebook_files = find_files(target_repo_path, ".ipynb")
-
-
 
 if len(notebook_files) == 0:
     feedback_message("missing_notebooks", "No Jupyter notebooks found. Jupyter notebooks are a great way to document your code, explain your thought process, and show examples of how to use your code.", output_path)

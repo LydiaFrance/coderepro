@@ -1,7 +1,0 @@
-{
-    "FOLDER_STRUCTURE_OVERVIEW": "The repository has a total of 24 folders.The maximum depth of the folder structure is 5.The repository structure is quite deep. Consider simplifying the directory hierarchy to improve navigability.  Depth 0: 1 folder(s)  Depth 1: 5 folder(s)  Depth 2: 8 folder(s)  Depth 3: 6 folder(s)  Depth 4: 3 folder(s)  Depth 5: 1 folder(s)",
-    "MISSING_SRC": "No source folder found. A source folder is a common convention for storing the main code of a project. It helps keep the project organized and makes it easier for others to understand the structure of the code.",
-    "MISSING_TESTS": "Couldn't find test files. Writing and running tests to ensure the correctness of your code. Without tests, it is difficult to verify that your code works as expected and to catch bugs early.",
-    "MISSING_DOCS": "Note: No docs folder found. Consider adding a docs folder -- it helps users and contributors understand how to use and contribute to the project.",
-    "MISSING_DATA": "Note: No data folder found. For reproducibility, make sure data is available."
-}

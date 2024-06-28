@@ -1,6 +1,6 @@
 from langchain_text_splitters import CharacterTextSplitter
 import folder_to_text
-from folder_to_text import *
+from folder_to_text import target_repo_path, converted_notebooks, python_files, md_files
 import os
 
 NCHAR=7000

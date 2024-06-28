@@ -294,7 +294,9 @@ else:
     converted_folder = os.path.join(temp_repo_path, "output/converted_notebooks")
 
     # Convert the notebooks to markdown
-    convert_jupyter_notebooks(notebook_files, converted_folder)
+    # Check whether the converted folder has files already
+    if not os.path.exists(converted_folder) or (len(os.listdir(converted_folder)) == 0):
+        convert_jupyter_notebooks(notebook_files, converted_folder)
 
     # Make a list of the converted notebooks
     converted_notebooks = find_files(converted_folder, ".md")

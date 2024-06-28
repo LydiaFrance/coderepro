@@ -39,7 +39,7 @@ classifiers = [
   "Topic :: Scientific/Engineering",
 ]
 dependencies = ["ollama",
-                "ipykernel", "torch", "transformers"]
+                "ipykernel", "torch", "transformers", "terminaltables", "textwrap", "os", "json"]
 
 [project.optional-dependencies]
 dev = [

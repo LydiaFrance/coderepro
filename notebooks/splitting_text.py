@@ -138,7 +138,7 @@ chunked_notebooks = chunk_notebooks(content_to_chunk)
 for index, text in enumerate(chunked_notebooks):
     output_fname = notebook_outputs + "/chunk" + str(index) + ".txt"
     with open(output_fname, "w", encoding='utf-8') as f:
-        f.write(text.page_content)
+        f.write(text)
 
 # For markdown documentation
 md_outputs = os.path.join(text_outputs, "markdown")
@@ -154,7 +154,7 @@ chunked_md = chunk_markdown_scripts(content_to_chunk)
 for index, text in enumerate(chunked_md):
     output_fname = md_outputs + "/chunk" + str(index) + ".txt"
     with open(output_fname, "w", encoding='utf-8') as f:
-        f.write(text.page_content)
+        f.write(text)
 
 # For python scripts
 py_outputs = os.path.join(text_outputs, "python_scripts")
@@ -170,7 +170,7 @@ chunked_py = chunk_python_scripts(content_to_chunk)
 for index, text in enumerate(chunked_py):
     output_fname = py_outputs + "/chunk" + str(index) + ".txt"
     with open(output_fname, "w", encoding='utf-8') as f:
-        f.write(text.page_content)
+        f.write(text)
 
 
 # For test files (python scripts)
@@ -187,4 +187,4 @@ chunked_test = chunk_python_scripts(content_to_chunk)
 for index, text in enumerate(chunked_test):
     output_fname = test_outputs + "/chunk" + str(index) + ".txt"
     with open(output_fname, "w", encoding='utf-8') as f:
-        f.write(text.page_content)
+        f.write(text)

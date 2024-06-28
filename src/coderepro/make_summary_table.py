@@ -10,7 +10,8 @@ CWD = Path(__file__).resolve().parent
 
 test_data_path = CWD.parents[1].resolve() / "temp_repo/output/"
 
-categories = ["General checks", "Code quality", "Documentation", "Testing", "Summary"]
+categories = ["Code Quality", "Documentation", "Testing", "Notebooks"]
+file_suffixes = ["codequality", "documentation", "testing", "notebooks"]
 
 #let's do category, text, score for now
 feedback_table = [["Category", "Feedback", "Score"]]
@@ -31,7 +32,7 @@ feedback_table.append(fc_table_entry)
 #and now to BERT
 sum_of_scores = 0
 for idx, cat in enumerate(categories): 
-    with open(os.path.join(test_data_path, f"response_{idx+1}.txt")) as fin:
+    with open(os.path.join(test_data_path, f"response_{file_suffixes[idx]}_1.txt")) as fin:
         raw_text = fin.read()
         eval_text = raw_text.replace('\n', '').replace("*", " ")
         sentiment_score = test_bert.evaluate_bert(eval_text)

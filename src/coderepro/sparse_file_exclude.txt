@@ -5,6 +5,7 @@
 !*.csv
 !*.jpg
 !*.png
+!*.tiff
 !*.txt
 !*.doc
 !*.docx
@@ -12,4 +13,6 @@
 !*.xlsx
 !*.ppt
 !*.pptx
+!*.pdf
+!*.h5
 /requirements.txt

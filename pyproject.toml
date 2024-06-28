@@ -42,7 +42,9 @@ dependencies = ["ollama",
                 "ipykernel",
                 "gradio",
                 "torch", 
-                "transformers"]
+                "transformers",
+                "nbformat",
+                "nbconvert",]
 
 [project.optional-dependencies]
 dev = [
